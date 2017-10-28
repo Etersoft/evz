@@ -1,0 +1,44 @@
+# evz(8) completion
+
+# This completes on a list of all available services for the
+# 'evz' command, followed by that script's available commands
+#
+_evz_list()
+{
+    #COMPREPLY=( $( evz list-all 2>/dev/null ) )
+    #COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
+}
+
+_evz_usage_list()
+{
+    #local USLIST=$(evz ${prev##*/} usage 2>/dev/null | sed -e "y/|/ /" -ne "s/^.*\(u\|U\|msg_u\)sage.*{\(.*\)}.*$/\2/p")
+    #COMPREPLY=( $( compgen -W '$USLIST' -- "$cur" ) )
+    # TODO: from evz --help
+    COMPREPLY=( $( echo "on off stop start destroy" ) )
+    COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
+}
+
+
+_evz()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    # don't complete for things like killall, ssh and mysql if it's
+    # the standalone command, rather than the init script
+    [[ ${COMP_WORDS[0]} != "evz" ]] && return 0
+
+    # don't complete past 2nd token
+    [ $COMP_CWORD -gt 2 ] && return 0
+
+    if [[ $COMP_CWORD -eq 1 && $prev == "evz" ]]; then
+        _evz_usage_list
+    else
+        _evz_list
+    fi
+
+    return 0
+} &&
+complete -F _evz evz

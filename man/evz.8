@@ -1,0 +1,48 @@
+'\" t
+.\"
+.\" Author: Vitaly Lipatov
+.\"
+.\" This file has been put into the public domain.
+.\" You can do whatever you want with this file.
+.\"
+.TH EVZ 8 "November 2017" "Version 0.1"
+
+.SH NAME
+evz \- openvz control tool
+.SH SYNOPSIS
+.B evz
+.RI [options]
+.RI [command]
+.RI VZ(s)
+.PP
+.br
+.SH DESCRIPTION
+.BI
+EVZ is implemented as wrapper around vzctl with accent to group operations on containers.
+
+.SH OPTIONS
+.TP
+.I -h
+Display help
+.TP
+.I -V
+Show version and exit
+.TP
+.I -q
+Quiet mode
+.TP
+.SH EXAMPLES
+ # evz on 25 - enable onboot and start container 25
+ # evz destroy 5 10 - stop containers 5, 10 and destroy it
+ # evz restart 10 20 - restart containers 10 20
+
+.SH BUGS
+Please report any bugs to lav@etersoft.ru
+.SH EXIT STATUS
+.B evz
+will return zero on success and non zero on operation failure.
+.SH SEE ALSO
+.BR eepm (1)
+.TP
+.B http://wiki.etersoft.ru/EVZ
+EVZ wiki page
