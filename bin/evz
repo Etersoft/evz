@@ -88,6 +88,19 @@ case $CMD in
 	    vzctl exec $i "$INCMD"
 	done
 	;;
+    info)
+    	LIST="$*"
+    	[ "$1" = "all" ] && LIST="$(list_all)"
+    	[ "$1" = "ALL" ] && LIST="$(list_ALL)"
+	#for i in $LIST ; do
+	    #info "Executing on $i ..."
+	    #printf "%3d: %s" $i "$(vzctl exec $i "$INCMD")"
+	    #vzctl exec $i "$INCMD" | sed -e "s|^|$(printf "%3d: " $i)|g"
+	    #vzctl exec $i "$INCMD"
+	    # TODO: internal IP, red if internal hostname differs
+	    vzlist $LIST -o ctid,ip,hostname,diskspace
+	#done
+	;;
     destroy)
         echo "You request to destroy follow containers:"
         vzlist "$@"
