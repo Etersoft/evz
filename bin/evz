@@ -62,6 +62,17 @@ case $CMD in
 	    vzctl start $i
 	done
 	;;
+    list)
+	vzlist "$@"
+	;;
+    exec)
+    	INCMD="$1"
+    	shift
+	for i in "$@" ; do
+	    #info "Executing on $i ..."
+	    vzctl exec $i "$INCMD"
+	done
+	;;
     destroy)
         echo "You request to destroy follow containers:"
         vzlist "$@"

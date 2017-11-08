@@ -7,6 +7,7 @@ _evz_list()
 {
     #COMPREPLY=( $( evz list-all 2>/dev/null ) )
     #COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
+    true
 }
 
 _evz_usage_list()
@@ -14,7 +15,7 @@ _evz_usage_list()
     #local USLIST=$(evz ${prev##*/} usage 2>/dev/null | sed -e "y/|/ /" -ne "s/^.*\(u\|U\|msg_u\)sage.*{\(.*\)}.*$/\2/p")
     #COMPREPLY=( $( compgen -W '$USLIST' -- "$cur" ) )
     # TODO: from evz --help
-    COMPREPLY=( $( echo "on off stop start destroy" ) )
+    COMPREPLY=( $( echo "on off stop start destroy list exec" ) )
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
 }
 
