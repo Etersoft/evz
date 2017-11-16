@@ -60,6 +60,18 @@ case $CMD in
 	    vzctl start $i
 	done
 	;;
+    status)
+	info "Do $CMD for $* ..."
+	for i in "$@" ; do
+	    vzctl $CMD $i
+	done
+	;;
+    compact)
+	for i in "$@" ; do
+	    info "Do $CMD on $i ..."
+	    vzctl $CMD $i
+	done
+	;;
     stop)
 	for i in "$@" ; do
 	    info "Stopping $i ..."
