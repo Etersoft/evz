@@ -33,9 +33,60 @@ load_helper()
 load_helper evz-sh-functions
 
 check_tty
+
+phelp()
 {
-    echo "$*"
+	echo "$Descr
+$Usage
+ Commands:
+$(get_help HELPCMD)
+
+ Options:
+$(get_help HELPOPT)
+
+ Examples:
+    # evz start ID ID ID
+"
 }
+
+print_version()
+{
+        echo "Etersoft vzctl wrapper version @VERSION@"
+        echo "Copyright (c) Etersoft 2017"
+        echo "This program may be freely redistributed under the terms of the GNU AGPLv3."
+}
+
+progname="${0##*/}"
+
+Usage="Usage: $progname [options] [<command>] [params]..."
+Descr="evz - vzctl wrapper"
+
+progname="${0##*/}"
+
+
+force=''
+target=''
+verbose=--verbose
+
+case "$1" in
+    -h|--help|help)       # HELPOPT: this help
+        phelp
+        exit
+        ;;
+    -V|--version)         # HELPOPT: print version
+        print_version
+        exit
+        ;;
+    -q|--quiet)           # HELPOPT: be silent
+        verbose=
+        shift
+        ;;
+    -f|--force)           # HELPOPT: override target
+        force=-f
+        shift
+        ;;
+esac
+
 
 list_all()
 {
@@ -47,10 +98,12 @@ list_ALL()
     vzlist -1 -a
 }
 
+# TODO: add all support for all cases
+
 CMD=$1
 shift
 case $CMD in
-    off)
+    off)                             # HELPCMD: stop container(s) and disable start on boot
 	for i in "$@" ; do
 	    info "Stopping $i ..."
 	    vzctl stop $i
@@ -58,7 +111,7 @@ case $CMD in
 	    vzctl set $i --onboot no --save
 	done
 	;;
-    on)
+    on)                              # HELPCMD: enable start on boot and start container(s)
 	for i in "$@" ; do
 	    info "Starting $i ..."
 	    # TODO: check if enabled
@@ -66,34 +119,37 @@ case $CMD in
 	    vzctl start $i
 	done
 	;;
-    status)
+    status)                          # HELPCMD: print container(s) status
 	info "Do $CMD for $* ..."
 	for i in "$@" ; do
 	    vzctl $CMD $i
 	done
 	;;
-    compact)
+    compact)                         # HELPCMD: do named operation on container(s)
 	for i in "$@" ; do
 	    info "Do $CMD on $i ..."
 	    vzctl $CMD $i
 	done
 	;;
-    stop)
+    stop)                            # HELPCMD: stop container(s)
 	for i in "$@" ; do
 	    info "Stopping $i ..."
 	    vzctl stop $i
 	done
 	;;
-    start)
+    start)                           # HELPCMD: start container(s)
 	for i in "$@" ; do
 	    info "Starting $i ..."
 	    vzctl start $i
 	done
 	;;
-    list)
+    list)                            # HELPCMD: list avaiable container(s)
+    # TODO -q for just id list
+    # TODO -a support
+    # https://bugs.etersoft.ru/show_bug.cgi?id=12016
 	vzlist "$@"
 	;;
-    exec)
+    exec)                            # HELPCMD: execute command by list (all for all containers)
     	INCMD="$1"
     	shift
     	LIST="$*"
@@ -106,7 +162,7 @@ case $CMD in
 	    vzctl exec $i "$INCMD"
 	done
 	;;
-    info)
+    info)                            # HELPCMD: print containers(s) info (vzlist like)
     	LIST="$*"
     	[ "$1" = "all" ] && LIST="$(list_all)"
     	[ "$1" = "ALL" ] && LIST="$(list_ALL)"
@@ -119,7 +175,7 @@ case $CMD in
 	    vzlist $LIST -o ctid,ip,hostname,diskspace
 	#done
 	;;
-    destroy)
+    destroy)                         # HELPCMD: destroy container(s) by list
         echo "You request to destroy follow containers:"
         vzlist "$@"
         #local response
@@ -133,6 +189,6 @@ case $CMD in
 	done
 	;;
     *)
-	fatal "Unknow command '$CMD'"
+	fatal "Unknow command '$CMD'. Use --help to get help."
 	;;
 esac
