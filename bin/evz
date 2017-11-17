@@ -88,15 +88,37 @@ case "$1" in
         ;;
 esac
 
+line_filter()
+{
+    # https://stackoverflow.com/questions/1251999/how-can-i-replace-a-newline-n-using-sed
+    sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' -e "s| \+| |g" -e "s|^ ||g" -e "s| $||g"
+}
 
 list_all()
 {
-    vzlist -1 "$@"
+    vzlist -1 "$@" | line_filter
 }
 
 list_ALL()
 {
-    vzlist -1 -a "$@"
+    vzlist -1 -a "$@" | line_filter
+}
+
+get_list()
+{
+    if [ "$1" = "ALL" ] ; then
+        list_ALL
+        return
+    fi
+    if [ "$1" = "all" ] ; then
+        list_all
+        return
+    fi
+    if [ -n "$1" ] ; then
+        list_ALL "$@"
+        return
+    fi
+    list_all
 }
 
 # TODO: add all support for all cases
@@ -105,7 +127,8 @@ CMD=$1
 shift
 case $CMD in
     off)                             # HELPCMD: stop container(s) and disable start on boot
-	for i in "$@" ; do
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
 	    info "Stopping $i ..."
 	    vzctl stop $i
 	    # TODO: check if enabled
@@ -121,25 +144,29 @@ case $CMD in
 	done
 	;;
     status)                          # HELPCMD: print container(s) status
-	info "Do $CMD for $* ..."
-	for i in "$@" ; do
+	LIST=$(get_list "$@")
+	info "Do $CMD for $LIST ..."
+	for i in $LIST ; do
 	    vzctl $CMD $i
 	done
 	;;
     compact)                         # HELPCMD: do named operation on container(s)
-	for i in "$@" ; do
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
 	    info "Do $CMD on $i ..."
 	    vzctl $CMD $i
 	done
 	;;
     stop)                            # HELPCMD: stop container(s)
+	LIST=$(get_list "$@")
 	for i in "$@" ; do
 	    info "Stopping $i ..."
 	    vzctl stop $i
 	done
 	;;
     start)                           # HELPCMD: start container(s)
-	for i in "$@" ; do
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
 	    info "Starting $i ..."
 	    vzctl start $i
 	done
@@ -148,12 +175,7 @@ case $CMD in
 	# if -q, just id list
 	if [ -z "$verbose" ] || [ "$1" = "-1" ] || [ "$1" = "-q" ] ; then
 		[ -z "$verbose" ] || shift
-		# some hack, TODO: drop all args
-		[ "$1" = "all" ] && shift
-		LIST="$(list_all "$@")"
-		[ "$1" = "ALL" ] && LIST="$(list_ALL)"
-		[ "$1" = "-a" ] && LIST="$(list_ALL)"
-		echo "$LIST"
+		get_list "$@"
 		exit
 	fi
 	vzlist "$@"
@@ -161,9 +183,7 @@ case $CMD in
     exec)                            # HELPCMD: execute command by list (all for all containers)
     	INCMD="$1"
     	shift
-    	LIST="$*"
-    	[ "$1" = "all" ] && LIST="$(list_all)"
-    	[ "$1" = "ALL" ] && LIST="$(list_ALL)"
+	LIST=$(get_list "$@")
 	for i in $LIST ; do
 	    #info "Executing on $i ..."
 	    #printf "%3d: %s" $i "$(vzctl exec $i "$INCMD")"
@@ -172,9 +192,7 @@ case $CMD in
 	done
 	;;
     info)                            # HELPCMD: print containers(s) info (vzlist like)
-    	LIST="$*"
-    	[ "$1" = "all" ] && LIST="$(list_all)"
-    	[ "$1" = "ALL" ] && LIST="$(list_ALL)"
+	LIST=$(get_list "$@")
 	#for i in $LIST ; do
 	    #info "Executing on $i ..."
 	    #printf "%3d: %s" $i "$(vzctl exec $i "$INCMD")"
@@ -186,7 +204,7 @@ case $CMD in
 	;;
     destroy)                         # HELPCMD: destroy container(s) by list
         echo "You request to destroy follow containers:"
-        vzlist "$@"
+        vzlist -a "$@"
         #local response
         read -r -p "Are you sure? [Yes/No]" response
         [ "$response" = "Yes" ] || fatal "Have no receive your accept."
