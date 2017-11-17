@@ -46,6 +46,7 @@ $(get_help HELPOPT)
 
  Examples:
     # evz start ID ID ID
+    # evz list ALL
 "
 }
 
@@ -90,12 +91,12 @@ esac
 
 list_all()
 {
-    vzlist -1
+    vzlist -1 "$@"
 }
 
 list_ALL()
 {
-    vzlist -1 -a
+    vzlist -1 -a "$@"
 }
 
 # TODO: add all support for all cases
@@ -143,10 +144,18 @@ case $CMD in
 	    vzctl start $i
 	done
 	;;
-    list)                            # HELPCMD: list avaiable container(s)
-    # TODO -q for just id list
-    # TODO -a support
-    # https://bugs.etersoft.ru/show_bug.cgi?id=12016
+    list)                            # HELPCMD: list avaiable container(s) (use -q|-1 for list only ID, list ALL|-a for list ever stopped containers)
+	# if -q, just id list
+	if [ -z "$verbose" ] || [ "$1" = "-1" ] || [ "$1" = "-q" ] ; then
+		[ -z "$verbose" ] || shift
+		# some hack, TODO: drop all args
+		[ "$1" = "all" ] && shift
+		LIST="$(list_all "$@")"
+		[ "$1" = "ALL" ] && LIST="$(list_ALL)"
+		[ "$1" = "-a" ] && LIST="$(list_ALL)"
+		echo "$LIST"
+		exit
+	fi
 	vzlist "$@"
 	;;
     exec)                            # HELPCMD: execute command by list (all for all containers)
