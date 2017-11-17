@@ -20,13 +20,19 @@
 PROGDIR=$(dirname $0)
 [ "$PROGDIR" = "." ] && PROGDIR=$(pwd)
 
-fatal()
+# will replaced to /usr/share/evz during install
+SHAREDIR=$PROGDIR
+
+load_helper()
 {
-    echo "$*" >&2
-    exit 1
+    local CMD="$SHAREDIR/$1"
+    [ -r "$CMD" ] || { echo "Have no $CMD helper file" >&2 ; exit 1 ; }
+    . $CMD
 }
 
-info()
+load_helper evz-sh-functions
+
+check_tty
 {
     echo "$*"
 }
