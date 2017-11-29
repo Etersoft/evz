@@ -171,6 +171,13 @@ case $CMD in
 	    vzctl start $i
 	done
 	;;
+    restart)                         # HELPCMD: restart container(s)
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
+	    info "Restarting $i ..."
+	    vzctl restart $i
+	done
+	;;
     list)                            # HELPCMD: list avaiable container(s) (use -q|-1 for list only ID, list ALL|-a for list ever stopped containers)
 	# if -q, just id list
 	if [ -z "$verbose" ] || [ "$1" = "-1" ] || [ "$1" = "-q" ] ; then
