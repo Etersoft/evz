@@ -166,6 +166,13 @@ case $CMD in
 	    vzctl $CMD $i $OPTIONS --save
 	done
 	;;
+    ubc)                         # HELPCMD: print resource using via vzubc
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
+	    #info "Do $CMD on $i ..."
+	    vzubc $i
+	done
+	;;
     stop)                            # HELPCMD: stop container(s)
 	LIST=$(get_list "$@")
 	for i in "$@" ; do
