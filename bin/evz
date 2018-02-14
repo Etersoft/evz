@@ -157,6 +157,15 @@ case $CMD in
 	    vzctl $CMD $i
 	done
 	;;
+    set)                         # HELPCMD: set param. Use with --option param
+	OPTIONS="$1 $2"
+	shift 2
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
+	    info "Do $CMD on $i ..."
+	    vzctl $CMD $i $OPTIONS --save
+	done
+	;;
     stop)                            # HELPCMD: stop container(s)
 	LIST=$(get_list "$@")
 	for i in "$@" ; do
