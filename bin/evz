@@ -214,6 +214,9 @@ case $CMD in
 	    vzctl exec $i "$INCMD"
 	done
 	;;
+    enter)                            # HELPCMD: enter in a container with ID
+    	exec vzctl enter "$1"
+	;;
     info)                            # HELPCMD: print containers(s) info (vzlist like)
 	LIST=$(get_list "$@")
 	#for i in $LIST ; do
