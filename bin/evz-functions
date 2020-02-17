@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# Copyright (C) 2017  Etersoft
+# Copyright (C) 2017  Vitaly Lipatov <lav@etersoft.ru>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+line_filter()
+{
+    # https://stackoverflow.com/questions/1251999/how-can-i-replace-a-newline-n-using-sed
+    sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' -e "s| \+| |g" -e "s|^ ||g" -e "s| $||g"
+}
+
+list_all()
+{
+    vzlist -1 "$@" | line_filter
+}
+
+list_ALL()
+{
+    vzlist -1 -a "$@" | line_filter
+}
+
+get_list()
+{
+    if [ "$1" = "ALL" ] ; then
+        list_ALL
+        return
+    fi
+    if [ "$1" = "all" ] ; then
+        list_all
+        return
+    fi
+    if [ -n "$1" ] ; then
+        list_ALL "$@"
+        return
+    fi
+    list_all
+}
+

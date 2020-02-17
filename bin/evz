@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# Copyright (C) 2017  Etersoft
-# Copyright (C) 2017  Vitaly Lipatov <lav@etersoft.ru>
+# Copyright (C) 2017, 2020  Etersoft
+# Copyright (C) 2017, 2020  Vitaly Lipatov <lav@etersoft.ru>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -31,8 +31,26 @@ load_helper()
 }
 
 load_helper evz-sh-functions
+load_helper evz-functions
 
 check_tty
+
+MCTL=""
+[ -z "$MCTL" ] && which vzctl 2>/dev/null >/dev/null && MCTL="openvz"
+[ -z "$MCTL" ] && which docker 2>/dev/null >/dev/null && MCTL="docker"
+
+[ -n "$MCTL" ] || warning "Can't detect supported virtualization tool"
+
+# FIXME: override get_help
+# print options description from HELPCMD/HELPOPT lines in the code
+get_help()
+{
+    grep -v -h -- "^#" $0 $SHAREDIR/evz-$MCTL | grep -- "# $1" | while read n ; do
+        opt=$(echo $n | sed -e "s|) # $1:.*||g")
+        desc=$(echo $n | sed -e "s|.*) # $1:||g")
+        printf "    %-20s %s\n" $opt "$desc"
+    done
+}
 
 phelp()
 {
@@ -52,15 +70,15 @@ $(get_help HELPOPT)
 
 print_version()
 {
-        echo "Etersoft vzctl wrapper version @VERSION@"
-        echo "Copyright (c) Etersoft 2017"
+        echo "Etersoft vzctl & docker wrapper version @VERSION@"
+        echo "Copyright (c) Etersoft 2017, 2020"
         echo "This program may be freely redistributed under the terms of the GNU AGPLv3."
 }
 
 progname="${0##*/}"
 
 Usage="Usage: $progname [options] [<command>] [params]..."
-Descr="evz - vzctl wrapper"
+Descr="evz - vzctl & docker wrapper"
 
 progname="${0##*/}"
 
@@ -88,160 +106,7 @@ case "$1" in
         ;;
 esac
 
-line_filter()
-{
-    # https://stackoverflow.com/questions/1251999/how-can-i-replace-a-newline-n-using-sed
-    sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' -e "s| \+| |g" -e "s|^ ||g" -e "s| $||g"
-}
+[ -n "$MCTL" ] || fatal "Can't detect supported virtualization tool"
 
-list_all()
-{
-    vzlist -1 "$@" | line_filter
-}
-
-list_ALL()
-{
-    vzlist -1 -a "$@" | line_filter
-}
-
-get_list()
-{
-    if [ "$1" = "ALL" ] ; then
-        list_ALL
-        return
-    fi
-    if [ "$1" = "all" ] ; then
-        list_all
-        return
-    fi
-    if [ -n "$1" ] ; then
-        list_ALL "$@"
-        return
-    fi
-    list_all
-}
-
-# TODO: add all support for all cases
-
-CMD=$1
-shift
-case $CMD in
-    off)                             # HELPCMD: stop container(s) and disable start on boot
-	LIST=$(get_list "$@")
-	for i in $LIST ; do
-	    info "Stopping $i ..."
-	    vzctl stop $i
-	    # TODO: check if enabled
-	    vzctl set $i --onboot no --save
-	done
-	;;
-    on)                              # HELPCMD: enable start on boot and start container(s)
-	for i in "$@" ; do
-	    info "Starting $i ..."
-	    # TODO: check if enabled
-	    vzctl set $i --onboot yes --save
-	    vzctl start $i
-	done
-	;;
-    status)                          # HELPCMD: print container(s) status
-	LIST=$(get_list "$@")
-	info "Do $CMD for $LIST ..."
-	for i in $LIST ; do
-	    vzctl $CMD $i
-	done
-	;;
-    compact)                         # HELPCMD: do named operation on container(s)
-	LIST=$(get_list "$@")
-	for i in $LIST ; do
-	    info "Do $CMD on $i ..."
-	    vzctl $CMD $i
-	done
-	;;
-    set)                         # HELPCMD: set param. Use with --option param
-	OPTIONS="$1 $2"
-	shift 2
-	LIST=$(get_list "$@")
-	for i in $LIST ; do
-	    info "Do $CMD on $i ..."
-	    vzctl $CMD $i $OPTIONS --save
-	done
-	;;
-    ubc)                         # HELPCMD: print resource using via vzubc
-	LIST=$(get_list "$@")
-	for i in $LIST ; do
-	    #info "Do $CMD on $i ..."
-	    vzubc $i
-	done
-	;;
-    stop)                            # HELPCMD: stop container(s)
-	LIST=$(get_list "$@")
-	for i in "$@" ; do
-	    info "Stopping $i ..."
-	    vzctl stop $i
-	done
-	;;
-    start)                           # HELPCMD: start container(s)
-	LIST=$(get_list "$@")
-	for i in $LIST ; do
-	    info "Starting $i ..."
-	    vzctl start $i
-	done
-	;;
-    restart)                         # HELPCMD: restart container(s)
-	LIST=$(get_list "$@")
-	for i in $LIST ; do
-	    info "Restarting $i ..."
-	    vzctl restart $i
-	done
-	;;
-    list)                            # HELPCMD: list avaiable container(s) (use -q|-1 for list only ID, list ALL|-a for list ever stopped containers)
-	# if -q, just id list
-	if [ -z "$verbose" ] || [ "$1" = "-1" ] || [ "$1" = "-q" ] ; then
-		[ -z "$verbose" ] || shift
-		get_list "$@"
-		exit
-	fi
-	vzlist "$@"
-	;;
-    exec)                            # HELPCMD: execute command by list (all for all containers)
-    	INCMD="$1"
-    	shift
-	LIST=$(get_list "$@")
-	for i in $LIST ; do
-	    #info "Executing on $i ..."
-	    #printf "%3d: %s" $i "$(vzctl exec $i "$INCMD")"
-	    #vzctl exec $i "$INCMD" | sed -e "s|^|$(printf "%3d: " $i)|g"
-	    vzctl exec $i "$INCMD"
-	done
-	;;
-    enter)                            # HELPCMD: enter in a container with ID
-    	exec vzctl enter "$1"
-	;;
-    info)                            # HELPCMD: print containers(s) info (vzlist like)
-	LIST=$(get_list "$@")
-	#for i in $LIST ; do
-	    #info "Executing on $i ..."
-	    #printf "%3d: %s" $i "$(vzctl exec $i "$INCMD")"
-	    #vzctl exec $i "$INCMD" | sed -e "s|^|$(printf "%3d: " $i)|g"
-	    #vzctl exec $i "$INCMD"
-	    # TODO: internal IP, red if internal hostname differs
-	    vzlist $LIST -o ctid,ip,hostname,diskspace
-	#done
-	;;
-    destroy)                         # HELPCMD: destroy container(s) by list
-        echo "You request to destroy follow containers:"
-        vzlist -a "$@"
-        #local response
-        read -r -p "Are you sure? [Yes/No]" response
-        [ "$response" = "Yes" ] || fatal "Have no receive your accept."
-
-	for i in "$@" ; do
-	    info "Stopping $i ..."
-	    vzctl stop $i
-	    vzctl destroy $i
-	done
-	;;
-    *)
-	fatal "Unknow command '$CMD'. Use --help to get help."
-	;;
-esac
+load_helper evz-$MCTL
+evz_$MCTL "$@"

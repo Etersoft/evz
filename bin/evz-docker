@@ -1,0 +1,147 @@
+#!/bin/sh
+#
+# Copyright (C) 2020  Etersoft
+# Copyright (C) 2020  Vitaly Lipatov <lav@etersoft.ru>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+# TODO: add all support for all cases
+
+evz_docker()
+{
+CMD=$1
+shift
+case $CMD in
+    off)                             # HELPCMD: stop container(s) and disable start on boot
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
+	    info "Stopping $i ..."
+	    vzctl stop $i
+	    # TODO: check if enabled
+	    vzctl set $i --onboot no --save
+	done
+	;;
+    on)                              # HELPCMD: enable start on boot and start container(s)
+	for i in "$@" ; do
+	    info "Starting $i ..."
+	    # TODO: check if enabled
+	    vzctl set $i --onboot yes --save
+	    vzctl start $i
+	done
+	;;
+    status)                          # HELPCMD: print container(s) status
+	LIST=$(get_list "$@")
+	info "Do $CMD for $LIST ..."
+	for i in $LIST ; do
+	    vzctl $CMD $i
+	done
+	;;
+    compact)                         # HELPCMD: do named operation on container(s)
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
+	    info "Do $CMD on $i ..."
+	    vzctl $CMD $i
+	done
+	;;
+    set)                         # HELPCMD: set param. Use with --option param
+	OPTIONS="$1 $2"
+	shift 2
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
+	    info "Do $CMD on $i ..."
+	    vzctl $CMD $i $OPTIONS --save
+	done
+	;;
+    ubc)                         # HELPCMD: print resource using via vzubc
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
+	    #info "Do $CMD on $i ..."
+	    vzubc $i
+	done
+	;;
+    stop)                            # HELPCMD: stop container(s)
+	LIST=$(get_list "$@")
+	for i in "$@" ; do
+	    info "Stopping $i ..."
+	    vzctl stop $i
+	done
+	;;
+    start)                           # HELPCMD: start container(s)
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
+	    info "Starting $i ..."
+	    vzctl start $i
+	done
+	;;
+    restart)                         # HELPCMD: restart container(s)
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
+	    info "Restarting $i ..."
+	    vzctl restart $i
+	done
+	;;
+    list)                            # HELPCMD: list avaiable container(s) (use -q|-1 for list only ID, list ALL|-a for list ever stopped containers)
+	# if -q, just id list
+	if [ -z "$verbose" ] || [ "$1" = "-1" ] || [ "$1" = "-q" ] ; then
+		[ -z "$verbose" ] || shift
+		#get_list "$@"
+		docker ps
+		exit
+	fi
+	vzlist "$@"
+	;;
+    exec)                            # HELPCMD: execute command by list (all for all containers)
+	INCMD="$1"
+	shift
+	LIST=$(get_list "$@")
+	for i in $LIST ; do
+	    docker exec -ti "$i" "$INCMD"
+	done
+	;;
+    enter)                            # HELPCMD: enter in a container with ID
+	docker exec -ti "$1" bash
+	;;
+    log|logs)                         # HELPCMD: print container log
+	docker logs "$1"
+	;;
+    info)                            # HELPCMD: print containers(s) info (vzlist like)
+	LIST=$(get_list "$@")
+	#for i in $LIST ; do
+	    #info "Executing on $i ..."
+	    #printf "%3d: %s" $i "$(vzctl exec $i "$INCMD")"
+	    #vzctl exec $i "$INCMD" | sed -e "s|^|$(printf "%3d: " $i)|g"
+	    #vzctl exec $i "$INCMD"
+	    # TODO: internal IP, red if internal hostname differs
+	    vzlist $LIST -o ctid,ip,hostname,diskspace
+	#done
+	;;
+    destroy)                         # HELPCMD: destroy container(s) by list
+        echo "You request to destroy follow containers:"
+        vzlist -a "$@"
+        #local response
+        read -r -p "Are you sure? [Yes/No]" response
+        [ "$response" = "Yes" ] || fatal "Have no receive your accept."
+
+	for i in "$@" ; do
+	    info "Stopping $i ..."
+	    vzctl stop $i
+	    vzctl destroy $i
+	done
+	;;
+    *)
+	fatal "Unknow command '$CMD'. Use --help to get help."
+	;;
+esac
+}
