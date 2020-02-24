@@ -190,7 +190,7 @@ case $CMD in
         read -r -p "Are you sure? [Yes/No]" response
         [ "$response" = "Yes" ] || fatal "Have no receive your accept."
 
-	for i in "$LIST" ; do
+	for i in $LIST ; do
 	    info "Stopping $i ..."
 	    docmd qm stop $i
 	    docmd qm destroy $i

@@ -185,11 +185,9 @@ case $CMD in
         read -r -p "Are you sure? [Yes/No]" response
         [ "$response" = "Yes" ] || fatal "Have no receive your accept."
 
-	for i in "$LIST" ; do
-	    info "Stopping $i ..."
-	    docmd docker stop $i
-	    docmd docker rm -f -v $i
-	done
+	info "Stopping $LIST ..."
+	docmd docker stop $LIST
+	docmd docker rm -f -v $LIST
 	;;
     *)
 	fatal "Unknow command '$CMD'. Use --help to get help."
