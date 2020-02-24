@@ -19,6 +19,7 @@
 
 # TODO: add all support for all cases
 
+# TODO: add ports command support (via rooter/iptables)
 list_all()
 {
     a= vzlist -1 "$@" | line_filter
