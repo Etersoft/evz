@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-SETLANG=ru_RU.UTF8
+SETLANG="-e ru_RU.UTF8"
 
 # list all running containers (or by arg list)
 list_all()
@@ -73,7 +73,7 @@ case $CMD in
 	LIST=$(get_list "$@")
 	#info "Do $CMD for $LIST ..."
 	for i in $LIST ; do
-	    docmd docker stats --no-stream $i
+	    docmd docker stats --no-stream --no-trunc $i
 	done
 	;;
     compact)                         # HELPCMD: do named operation on container(s)
@@ -101,9 +101,9 @@ case $CMD in
 	;;
     ubc|resources)                         # HELPCMD: print resource using
 	LIST=$(get_list "$@")
-	showcmd docker stats --no-stream
+	showcmd docker stats --no-stream --no-trunc
 	for i in $LIST ; do
-	    a= docker stats --no-stream $i
+	    a= docker stats --no-stream --no-trunc $i
 	done
 	;;
     stop)                            # HELPCMD: stop container(s)
@@ -154,15 +154,19 @@ case $CMD in
 	docmd docker logs "$1"
 	;;
     info)                            # HELPCMD: print containers(s) info (vzlist like)
-	LIST=$(get_list "$@")
+	#LIST=$(get_list "$@")
+	showcmd docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}'
+	a= docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}' "$@"
 	#for i in $LIST ; do
+	#    a= docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}' "$@"
 	    #info "Executing on $i ..."
 	    #printf "%3d: %s" $i "$(vzctl exec $i "$INCMD")"
 	    #vzctl exec $i "$INCMD" | sed -e "s|^|$(printf "%3d: " $i)|g"
 	    #vzctl exec $i "$INCMD"
 	    # TODO: internal IP, red if internal hostname differs
-	    vzlist $LIST -o ctid,ip,hostname,diskspace
+	    #vzlist $LIST -o ctid,ip,hostname,diskspace
 	#done
+	info "See evz ports ID for print ports"
 	;;
     load)                            # HELPCMD: print load average for container(s) by list
         for id in $(get_list "$@") ; do
