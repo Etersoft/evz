@@ -20,6 +20,8 @@
 # TODO: add all support for all cases
 
 # TODO: add ports command support (via rooter/iptables)
+# TODO: add cp support
+
 list_all()
 {
     a= vzlist -1 "$@" | line_filter
@@ -76,7 +78,7 @@ case $CMD in
 	    a= vzctl $CMD $i $OPTIONS --save
 	done
 	;;
-    ubc)                         # HELPCMD: print resource using via vzubc
+    ubc|resources)                         # HELPCMD: print resource using via vzubc
 	LIST=$(get_list "$@")
 	for i in $LIST ; do
 	    #info "Do $CMD on $i ..."
@@ -104,7 +106,7 @@ case $CMD in
 	    docmd vzctl restart $i
 	done
 	;;
-    list)                            # HELPCMD: list avaiable container(s) (use -q|-1 for list only ID, list ALL|-a for list ever stopped containers)
+    list|ps)                            # HELPCMD: list avaiable container(s) (use -q|-1 for list only ID, list ALL|-a for list ever stopped containers)
 	# if -q, just id list
 	if [ -z "$verbose" ] || [ "$1" = "-1" ] || [ "$1" = "-q" ] ; then
 		[ -z "$verbose" ] || shift

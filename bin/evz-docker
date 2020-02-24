@@ -99,7 +99,7 @@ case $CMD in
 	    todo vzctl $CMD $i $OPTIONS --save
 	done
 	;;
-    ubc)                         # HELPCMD: print resource using via vzubc
+    ubc|resources)                         # HELPCMD: print resource using
 	LIST=$(get_list "$@")
 	showcmd docker stats --no-stream
 	for i in $LIST ; do
@@ -127,7 +127,7 @@ case $CMD in
 	    docmd docker restart $i
 	done
 	;;
-    list)                            # HELPCMD: list avaiable container(s) (use -q|-1 for list only ID, list ALL|-a for list ever stopped containers)
+    list|ps)                            # HELPCMD: list avaiable container(s) (use -q|-1 for list only ID, list ALL|-a for list ever stopped containers)
 	# if -q, just id list
 	if [ -z "$verbose" ] || [ "$1" = "-1" ] || [ "$1" = "-q" ] ; then
 		[ -z "$verbose" ] || shift
