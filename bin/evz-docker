@@ -134,7 +134,8 @@ case $CMD in
 		get_list "$@"
 		exit
 	fi
-	docmd docker ps "$@"
+	docmd docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}' "$@"
+	info "See evz ports ID for print ports"
 	;;
     exec)                            # HELPCMD: execute command by list (all for all containers)
 	INCMD="$1"
