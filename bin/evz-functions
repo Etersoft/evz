@@ -23,15 +23,6 @@ line_filter()
     sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' -e "s| \+| |g" -e "s|^ ||g" -e "s| $||g"
 }
 
-list_all()
-{
-    vzlist -1 "$@" | line_filter
-}
-
-list_ALL()
-{
-    vzlist -1 -a "$@" | line_filter
-}
 
 get_list()
 {
