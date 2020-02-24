@@ -108,7 +108,7 @@ case $CMD in
 	;;
     stop)                            # HELPCMD: stop container(s)
 	LIST=$(get_list "$@")
-	for i in "$@" ; do
+	for i in "$LIST" ; do
 	    info "Stopping $i ..."
 	    docmd docker stop $i
 	done
