@@ -27,7 +27,7 @@ list_all()
         return
     fi
 
-    docker ps -q | line_filter
+    a= docker ps -q | line_filter
 }
 
 # list all containers (or by arg list)
@@ -38,7 +38,7 @@ list_ALL()
         return
     fi
 
-    docker ps -a -q | line_filter
+    a= docker ps -a -q | line_filter
 }
 
 todo()
