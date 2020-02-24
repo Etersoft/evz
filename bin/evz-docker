@@ -164,6 +164,13 @@ case $CMD in
 	    vzlist $LIST -o ctid,ip,hostname,diskspace
 	#done
 	;;
+    load)                            # HELPCMD: print load average for container(s) by list
+        for id in $(get_list "$@") ; do
+            HN=$(a= docker inspect --format '{{.Name}}' $id)
+            CPU=$(a= docker stats --no-stream --format " {{.CPUPerc}}" $id)
+            printf "%4s (%30s): %6s\n" $id $HN $CPU
+        done
+        ;;
     destroy)                         # HELPCMD: destroy container(s) by list
         echo "You request to destroy follow containers:"
         # don't support all/ALL
