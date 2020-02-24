@@ -127,7 +127,7 @@ case $CMD in
 	    docmd docker restart $i
 	done
 	;;
-    list|ps)                            # HELPCMD: list avaiable container(s) (use -q|-1 for list only ID, list ALL|-a for list ever stopped containers)
+    list|ps)                            # HELPCMD: list available container(s) (use -q|-1 for list only ID, list -a for list ever stopped containers)
 	# if -q, just id list
 	if [ -z "$verbose" ] || [ "$1" = "-1" ] || [ "$1" = "-q" ] ; then
 		[ -z "$verbose" ] || shift
