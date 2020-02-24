@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# Copyright (C) 2017  Etersoft
-# Copyright (C) 2017  Vitaly Lipatov <lav@etersoft.ru>
+# Copyright (C) 2017, 2020  Etersoft
+# Copyright (C) 2017, 2020  Vitaly Lipatov <lav@etersoft.ru>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,17 @@
 
 # TODO: add all support for all cases
 
+list_all()
+{
+    a= vzlist -1 "$@" | line_filter
+}
+
+list_ALL()
+{
+    a= vzlist -1 -a "$@" | line_filter
+}
+
+
 evz_openvz()
 {
 CMD=$1
@@ -28,31 +39,31 @@ case $CMD in
 	LIST=$(get_list "$@")
 	for i in $LIST ; do
 	    info "Stopping $i ..."
-	    vzctl stop $i
+	    docmd vzctl stop $i
 	    # TODO: check if enabled
-	    vzctl set $i --onboot no --save
+	    docmd vzctl set $i --onboot no --save
 	done
 	;;
     on)                              # HELPCMD: enable start on boot and start container(s)
 	for i in "$@" ; do
 	    info "Starting $i ..."
 	    # TODO: check if enabled
-	    vzctl set $i --onboot yes --save
-	    vzctl start $i
+	    docmd vzctl set $i --onboot yes --save
+	    docmd vzctl start $i
 	done
 	;;
     status)                          # HELPCMD: print container(s) status
 	LIST=$(get_list "$@")
-	info "Do $CMD for $LIST ..."
+	info "Do vzctl $CMD for $LIST ..."
 	for i in $LIST ; do
-	    vzctl $CMD $i
+	    a= vzctl $CMD $i
 	done
 	;;
     compact)                         # HELPCMD: do named operation on container(s)
 	LIST=$(get_list "$@")
 	for i in $LIST ; do
-	    info "Do $CMD on $i ..."
-	    vzctl $CMD $i
+	    #info "Do $CMD on $i ..."
+	    docmd vzctl $CMD $i
 	done
 	;;
     set)                         # HELPCMD: set param. Use with --option param
@@ -61,35 +72,35 @@ case $CMD in
 	LIST=$(get_list "$@")
 	for i in $LIST ; do
 	    info "Do $CMD on $i ..."
-	    vzctl $CMD $i $OPTIONS --save
+	    a= vzctl $CMD $i $OPTIONS --save
 	done
 	;;
     ubc)                         # HELPCMD: print resource using via vzubc
 	LIST=$(get_list "$@")
 	for i in $LIST ; do
 	    #info "Do $CMD on $i ..."
-	    vzubc $i
+	    a= vzubc $i
 	done
 	;;
     stop)                            # HELPCMD: stop container(s)
 	LIST=$(get_list "$@")
 	for i in "$@" ; do
 	    info "Stopping $i ..."
-	    vzctl stop $i
+	    docmd vzctl stop $i
 	done
 	;;
     start)                           # HELPCMD: start container(s)
 	LIST=$(get_list "$@")
 	for i in $LIST ; do
 	    info "Starting $i ..."
-	    vzctl start $i
+	    docmd vzctl start $i
 	done
 	;;
     restart)                         # HELPCMD: restart container(s)
 	LIST=$(get_list "$@")
 	for i in $LIST ; do
 	    info "Restarting $i ..."
-	    vzctl restart $i
+	    docmd vzctl restart $i
 	done
 	;;
     list)                            # HELPCMD: list avaiable container(s) (use -q|-1 for list only ID, list ALL|-a for list ever stopped containers)
@@ -109,11 +120,13 @@ case $CMD in
 	    #info "Executing on $i ..."
 	    #printf "%3d: %s" $i "$(vzctl exec $i "$INCMD")"
 	    #vzctl exec $i "$INCMD" | sed -e "s|^|$(printf "%3d: " $i)|g"
-	    vzctl exec $i "$INCMD"
+	    showcmd vzctl exec $i "$INCMD"
+	    a= vzctl exec $i "$INCMD"
 	done
 	;;
     enter)                            # HELPCMD: enter in a container with ID
-    	exec vzctl enter "$1"
+	showcmd exec vzctl enter "$1"
+	exec vzctl enter "$1"
 	;;
     info)                            # HELPCMD: print containers(s) info (vzlist like)
 	LIST=$(get_list "$@")
@@ -123,20 +136,34 @@ case $CMD in
 	    #vzctl exec $i "$INCMD" | sed -e "s|^|$(printf "%3d: " $i)|g"
 	    #vzctl exec $i "$INCMD"
 	    # TODO: internal IP, red if internal hostname differs
-	    vzlist $LIST -o ctid,ip,hostname,diskspace
+	    showcmd vzlist $LIST -o ctid,ip,hostname,diskspace
 	#done
 	;;
+    load)                            # HELPCMD: print load average for container(s) by list
+        for id in $(get_list "$@") ; do
+            CONF=/etc/vz/conf/$id.conf
+            test -r $CONF || continue
+            # TODO: drop long part?
+            eval `cat $CONF | grep ^HOSTNAME | sed -e "s|office.etersoft.ru||g"`
+            printf "%4s (%30s):" $id $HOSTNAME
+            a= vzctl exec $id uptime
+        done
+        #echo "---"
+        #uptime
+        ;;
     destroy)                         # HELPCMD: destroy container(s) by list
         echo "You request to destroy follow containers:"
-        vzlist -a "$@"
+        #vzlist -a "$@"
+        LIST=$(get_list "$@")
+        echo "$LIST"
         #local response
         read -r -p "Are you sure? [Yes/No]" response
         [ "$response" = "Yes" ] || fatal "Have no receive your accept."
 
-	for i in "$@" ; do
-	    info "Stopping $i ..."
-	    vzctl stop $i
-	    vzctl destroy $i
+	for i in "$LIST" ; do
+	    #info "Stopping $i ..."
+	    docmd vzctl stop $i
+	    docmd vzctl destroy $i
 	done
 	;;
     *)
