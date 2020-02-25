@@ -39,6 +39,7 @@ MCTL=""
 [ -z "$MCTL" ] && which vzctl 2>/dev/null >/dev/null && MCTL="openvz"
 [ -z "$MCTL" ] && which docker 2>/dev/null >/dev/null && MCTL="docker"
 [ -z "$MCTL" ] && which qm 2>/dev/null >/dev/null && MCTL="qm"
+[ -z "$MCTL" ] && which pct 2>/dev/null >/dev/null && MCTL="pct"
 
 [ -n "$MCTL" ] || warning "Can't detect supported virtualization tool"
 
