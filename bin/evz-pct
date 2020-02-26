@@ -52,7 +52,7 @@ CMD=$1
 shift
 case $CMD in
     off)                             # HELPCMD: stop container(s) and disable start on boot
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    #info "Stopping $i ..."
 	    docmd pct stop $i
@@ -68,21 +68,21 @@ case $CMD in
 	done
 	;;
     status)                          # HELPCMD: print container(s) status
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	#info "Do $CMD for $LIST ..."
 	for i in $LIST ; do
 	    docmd pct status $i
 	done
 	;;
     compact)                         # HELPCMD: do named operation on container(s)
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Do $CMD on $i ..."
 	    todo vzctl $CMD $i
 	done
 	;;
     ports)                         # HELPCMD: show public ports
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    #info "Do $CMD on $i ..."
 	    todo docmd docker port $i
@@ -91,21 +91,21 @@ case $CMD in
     set)                         # HELPCMD: set param. Use with --option param
 	OPTIONS="$1 $2"
 	shift 2
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Do $CMD on $i ..."
 	    docmd pct set $i $OPTIONS
 	done
 	;;
     ubc|resources|show)                         # HELPCMD: print resource using
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	todo showcmd docker stats --no-stream --no-trunc
 	#for i in $LIST ; do
 	#    a= docker stats --no-stream --no-trunc $i
 	#done
 	;;
     stop)                            # HELPCMD: stop container(s)
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Stopping $i ..."
 	    if [ -n "$force" ] ; then
@@ -116,28 +116,28 @@ case $CMD in
 	done
 	;;
     start)                           # HELPCMD: start container(s)
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Starting $i ..."
 	    docmd pct start $i
 	done
 	;;
     restart)                         # HELPCMD: restart container(s)
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Restarting $i ..."
 	    docmd pct reboot $i
 	done
 	;;
     suspend)                           # HELPCMD: suspend container(s)
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Suspening $i ..."
 	    docmd pct suspend $i
 	done
 	;;
     resume)                           # HELPCMD: resume container(s)
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Suspening $i ..."
 	    docmd pct resume $i
@@ -156,7 +156,7 @@ case $CMD in
     exec)                            # HELPCMD: execute command by list (all for all containers)
 	INCMD="$1"
 	shift
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    docmd pct exec "$i" "$INCMD"
 	done
@@ -169,7 +169,7 @@ case $CMD in
 	todo docmd docker logs "$1"
 	;;
     info)                            # HELPCMD: print containers(s) info (vzlist like)
-	LIST=$(get_list "$@")
+	LIST="$(get_list "$@")"
 	#showcmd docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}'
 	#a= docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}' "$@"
 	for i in $LIST ; do
@@ -198,7 +198,7 @@ case $CMD in
     destroy)                         # HELPCMD: destroy container(s) by list
         echo "You request to destroy follow containers:"
         # don't support all/ALL
-	#LIST=$(get_list "$@")
+	#LIST="$(get_list "$@")"
 	LIST="$@"
 	echo "$LIST"
         #local response
