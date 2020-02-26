@@ -169,7 +169,11 @@ case $CMD in
 	todo docmd docker logs "$1"
 	;;
     info)                            # HELPCMD: print virtual machines(s) info (vzlist like)
-        docmd vboxmanage list systemproperties
+        #docmd vboxmanage list systemproperties
+	LIST="$(get_list "$@")"
+	for i in $LIST ; do
+	    docmd vboxmanage showvminfo $i
+	done
 	;;
     load)                            # HELPCMD: print load average for virtual machine(s) by list
 	todo LOAD

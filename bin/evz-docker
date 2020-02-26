@@ -156,18 +156,10 @@ case $CMD in
 	docmd docker logs "$1"
 	;;
     info)                            # HELPCMD: print containers(s) info (vzlist like)
-	#LIST="$(get_list "$@")"
-	showcmd docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}' "$@"5
-	a= docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}' "$@"
-	#for i in $LIST ; do
-	#    a= docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}' "$@"
-	    #info "Executing on $i ..."
-	    #printf "%3d: %s" $i "$(vzctl exec $i "$INCMD")"
-	    #vzctl exec $i "$INCMD" | sed -e "s|^|$(printf "%3d: " $i)|g"
-	    #vzctl exec $i "$INCMD"
-	    # TODO: internal IP, red if internal hostname differs
-	    #vzlist $LIST -o ctid,ip,hostname,diskspace
-	#done
+	LIST="$(get_list "$@")"
+	for i in $LIST ; do
+	    docmd docker inspect $i
+	done
 	info "See evz ports ID for print ports"
 	;;
     load)                            # HELPCMD: print load average for container(s) by list
