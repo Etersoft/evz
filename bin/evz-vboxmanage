@@ -94,9 +94,11 @@ case $CMD in
 	OPTIONS="$1 $2"
 	shift 2
 	LIST="$(get_list "$@")"
+	# show help if empty
+	[ -n "$LIST" ] || docmd vboxmanage modifyvm
 	for i in $LIST ; do
 	    info "Do $CMD on $i ..."
-	    todo vzctl $CMD $i $OPTIONS --save
+	    docmd vboxmanage modifyvm $i $OPTIONS
 	done
 	;;
     ubc|resources|show)                         # HELPCMD: print resource using by virtual machine(s)
