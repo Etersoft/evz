@@ -83,11 +83,10 @@ case $CMD in
 	    todo vzctl $CMD $i
 	done
 	;;
-    ports)                         # HELPCMD: show public ports
+    ports)                           # HELPCMD: show public ports
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
-	    #info "Do $CMD on $i ..."
-	    todo docmd docker port $i
+	    docmd vboxmanage showvminfo $i | grep Rule
 	done
 	;;
     set)                         # HELPCMD: set param. Use with --option param
