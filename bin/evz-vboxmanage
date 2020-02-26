@@ -131,11 +131,18 @@ case $CMD in
 	    todo docmd ker restart $i
 	done
 	;;
-    sleep)                         # HELPCMD: sleep (savestate) virtual machine(s)
+    suspend|sleep)                   # HELPCMD: sleep (suspend) virtual machine(s)
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
-	    info "Sleepign $i ..."
+	    info "Sleeping $i ..."
 	    docmd vboxmanage controlvm $i savestate
+	done
+	;;
+    resume)                          # HELPCMD: resume virtual machine(s)
+	LIST="$(get_list "$@")"
+	for i in $LIST ; do
+	    info "Resuming $i ..."
+	    docmd vboxmanage controlvm $i resume
 	done
 	;;
     list|ps)                            # HELPCMD: list available virtual machine(s) (use -q|-1 for list only ID, list -a for list ever stopped virtual machines)

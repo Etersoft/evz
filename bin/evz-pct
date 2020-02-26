@@ -129,7 +129,7 @@ case $CMD in
 	    docmd pct reboot $i
 	done
 	;;
-    suspend)                           # HELPCMD: suspend container(s)
+    suspend|sleep)                   # HELPCMD: suspend container(s)
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Suspening $i ..."
@@ -139,7 +139,7 @@ case $CMD in
     resume)                           # HELPCMD: resume container(s)
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
-	    info "Suspening $i ..."
+	    info "Resuming $i ..."
 	    docmd pct resume $i
 	done
 	;;
