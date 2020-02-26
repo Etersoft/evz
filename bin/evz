@@ -35,18 +35,23 @@ load_helper evz-functions
 
 check_tty
 
-MCTL=""
-[ -z "$MCTL" ] && which vzctl 2>/dev/null >/dev/null && MCTL="openvz"
-[ -z "$MCTL" ] && which docker 2>/dev/null >/dev/null && MCTL="docker"
-[ -z "$MCTL" ] && which qm 2>/dev/null >/dev/null && MCTL="qm"
-[ -z "$MCTL" ] && which pct 2>/dev/null >/dev/null && MCTL="pct"
+SUPPORTED_ENGINES="vzctl docker qm pct vboxmanage"
 
-[ -n "$MCTL" ] || warning "Can't detect supported virtualization tool"
+MCTL=""
+EVZCTL_supported=""
+for i in $SUPPORTED_ENGINES ; do
+    which $i 2>/dev/null >/dev/null || continue
+    MCTL="$i"
+    [ "$EVZCTL" = "$i" ] && EVZCTL_supported="$EVZCTL" && break
+done
+[ -n "$EVZCTL_supported" ] && MCTL="$EVZCTL_supported"
+
 
 # FIXME: override get_help
 # print options description from HELPCMD/HELPOPT lines in the code
 get_help()
 {
+    [ -z "$MCTL" ] && warning "Can't detect supported virtualization tool" && return
     grep -v -h -- "^#" $0 $SHAREDIR/evz-$MCTL | grep -- "# $1" | while read n ; do
         opt=$(echo $n | sed -e "s|) # $1:.*||g")
         desc=$(echo $n | sed -e "s|.*) # $1:||g")
@@ -72,7 +77,7 @@ $(get_help HELPOPT)
 
 print_version()
 {
-        echo "Etersoft vzctl & docker wrapper version @VERSION@"
+        echo "Etersoft virtualization wrapper version @VERSION@"
         echo "Copyright (c) Etersoft 2017, 2020"
         echo "This program may be freely redistributed under the terms of the GNU AGPLv3."
 }
@@ -80,7 +85,7 @@ print_version()
 progname="${0##*/}"
 
 Usage="Usage: $progname [options] [<command>] [params]..."
-Descr="evz - vzctl & docker wrapper"
+Descr="evz - virtualization wrapper (supported engines: $SUPPORTED_ENGINES)"
 
 progname="${0##*/}"
 
