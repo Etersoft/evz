@@ -97,7 +97,7 @@ case $CMD in
 	    docmd pct set $i $OPTIONS
 	done
 	;;
-    ubc|resources)                         # HELPCMD: print resource using
+    ubc|resources|show)                         # HELPCMD: print resource using
 	LIST=$(get_list "$@")
 	todo showcmd docker stats --no-stream --no-trunc
 	#for i in $LIST ; do

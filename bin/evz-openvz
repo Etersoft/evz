@@ -78,7 +78,7 @@ case $CMD in
 	    a= vzctl $CMD $i $OPTIONS --save
 	done
 	;;
-    ubc|resources)                         # HELPCMD: print resource using via vzubc
+    ubc|resources|show)                         # HELPCMD: print resource using via vzubc
 	LIST=$(get_list "$@")
 	for i in $LIST ; do
 	    #info "Do $CMD on $i ..."
