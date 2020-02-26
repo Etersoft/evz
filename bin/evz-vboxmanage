@@ -53,7 +53,7 @@ evz_vboxmanage()
 CMD=$1
 shift
 case $CMD in
-    off)                             # HELPCMD: stop container(s) and disable start on boot
+    off)                             # HELPCMD: stop virtual machine(s) and disable start on boot
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    #info "Stopping $i ..."
@@ -61,7 +61,7 @@ case $CMD in
 	    todo docmd docker update --restart no $i
 	done
 	;;
-    on)                              # HELPCMD: enable start on boot and start container(s)
+    on)                              # HELPCMD: enable start on boot and start virtual machine(s)
 	for i in "$@" ; do
 	    #info "Starting $i ..."
 	    # TODO: check if enabled
@@ -69,14 +69,14 @@ case $CMD in
 	    todo docmd docker start $i
 	done
 	;;
-    status)                          # HELPCMD: print container(s) status
+    status)                          # HELPCMD: print virtual machine(s) status
 	LIST="$(get_list "$@")"
 	#info "Do $CMD for $LIST ..."
 	for i in $LIST ; do
 	    todo docmd docker stats --no-stream --no-trunc $i
 	done
 	;;
-    compact)                         # HELPCMD: do named operation on container(s)
+    compact)                         # HELPCMD: do named operation on virtual machine(s)
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Do $CMD on $i ..."
@@ -99,13 +99,13 @@ case $CMD in
 	    todo vzctl $CMD $i $OPTIONS --save
 	done
 	;;
-    ubc|resources|show)                         # HELPCMD: print resource using
+    ubc|resources|show)                         # HELPCMD: print resource using by virtual machine(s)
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    docmd vboxmanage showvminfo $i
 	done
 	;;
-    stop)                            # HELPCMD: stop container(s)
+    stop)                            # HELPCMD: stop virtual machine(s)
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Stopping $i ..."
@@ -116,21 +116,21 @@ case $CMD in
 	    docmd vboxmanage controlvm $i acpipowerbutton
 	done
 	;;
-    start)                           # HELPCMD: start container(s)
+    start)                           # HELPCMD: start virtual machine(s)
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Starting $i ..."
 	    docmd vboxmanage startvm --type headless $i
 	done
 	;;
-    restart)                         # HELPCMD: restart container(s)
+    restart)                         # HELPCMD: restart virtual machine(s)
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    info "Restarting $i ..."
 	    todo docmd ker restart $i
 	done
 	;;
-    list|ps)                            # HELPCMD: list available container(s) (use -q|-1 for list only ID, list -a for list ever stopped containers)
+    list|ps)                            # HELPCMD: list available virtual machine(s) (use -q|-1 for list only ID, list -a for list ever stopped virtual machines)
 	# if -q, just id list
 	if [ -z "$verbose" ] || [ "$1" = "-1" ] || [ "$1" = "-q" ] ; then
 		[ -z "$verbose" ] || shift
@@ -143,7 +143,7 @@ case $CMD in
 		docmd vboxmanage list runningvms
 	fi
 	;;
-    exec)                            # HELPCMD: execute command by list (all for all containers)
+    exec)                            # HELPCMD: execute command by list (all for all virtual machines)
 	INCMD="$1"
 	shift
 	LIST="$(get_list "$@")"
@@ -152,17 +152,17 @@ case $CMD in
 	    todo a= docker exec -ti $SETLANG "$i" "$INCMD"
 	done
 	;;
-    enter)                            # HELPCMD: enter in a container with ID
+    enter)                            # HELPCMD: enter in a virtual machine with ID
 	todo showcmd docker exec -ti $SETLANG "$1" bash
 	todo a= docker exec -ti $SETLANG "$1" bash
 	;;
-    log|logs)                         # HELPCMD: print container log
+    log|logs)                         # HELPCMD: print virtual machine log
 	todo docmd docker logs "$1"
 	;;
-    info)                            # HELPCMD: print containers(s) info (vzlist like)
+    info)                            # HELPCMD: print virtual machines(s) info (vzlist like)
         docmd vboxmanage list systemproperties
 	;;
-    load)                            # HELPCMD: print load average for container(s) by list
+    load)                            # HELPCMD: print load average for virtual machine(s) by list
 	todo LOAD
         #for id in $(get_list "$@") ; do
         #    HN=$(a= docker inspect --format '{{.Name}}' $id)
@@ -170,8 +170,8 @@ case $CMD in
         #    printf "%4s (%30s): %6s\n" $id $HN $CPU
         #done
         ;;
-    destroy)                         # HELPCMD: destroy container(s) by list
-        echo "You request to destroy follow containers:"
+    destroy)                         # HELPCMD: destroy virtual machine(s) by list
+        echo "You request to destroy follow virtual machines:"
         # don't support all/ALL
 	#LIST="$(get_list "$@")"
 	LIST="$@"
