@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-SETLANG="-e ru_RU.UTF8"
+SETLANG="-e LC_ALL=ru_RU.UTF8"
 
 # list all running containers (or by arg list)
 list_all()
