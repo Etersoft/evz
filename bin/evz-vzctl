@@ -33,7 +33,7 @@ list_ALL()
 }
 
 
-evz_openvz()
+evz_vzctl()
 {
 CMD=$1
 shift
