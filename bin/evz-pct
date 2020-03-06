@@ -46,7 +46,7 @@ todo()
 
 # TODO: add all support for all cases
 
-evz_qm()
+evz_pct()
 {
 CMD=$1
 shift

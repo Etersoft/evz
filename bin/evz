@@ -41,7 +41,7 @@ MCTL=""
 EVZCTL_supported=""
 for i in $SUPPORTED_ENGINES ; do
     which $i 2>/dev/null >/dev/null || continue
-    MCTL="$i"
+    [ -n "$MCTL" ] || MCTL="$i"
     [ "$EVZCTL" = "$i" ] && EVZCTL_supported="$EVZCTL" && break
 done
 [ -n "$EVZCTL_supported" ] && MCTL="$EVZCTL_supported"
