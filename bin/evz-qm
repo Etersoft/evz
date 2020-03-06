@@ -25,7 +25,7 @@ list_all()
         return
     fi
 
-    a= qm list | grep "[0-9]\+" | sed -e "s| *\([0-9]\+\) .*|\1|" | line_filter
+    a= qm list | grep "running" | grep "[0-9]\+" | sed -e "s| *\([0-9]\+\) .*|\1|" | line_filter
 }
 
 # list all containers (or by arg list)
@@ -132,8 +132,11 @@ case $CMD in
 		get_list "$@"
 		exit
 	fi
-	docmd qm list "$@"
-	#info "See evz ports ID for print ports"
+	if [ "$1" = "-a" ] || [ "$1" = "--all" ] ; then
+		docmd qm list
+	else
+		docmd qm list | grep running
+	fi
 	;;
     exec)                            # HELPCMD: execute command by list (all for all containers)
 	INCMD="$1"
