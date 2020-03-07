@@ -171,7 +171,7 @@ case $CMD in
 	    #vzctl exec $i "$INCMD" | sed -e "s|^|$(printf "%3d: " $i)|g"
 	    #vzctl exec $i "$INCMD"
 	    # TODO: internal IP, red if internal hostname differs
-	    showcmd vzlist $LIST -o ctid,ip,hostname,diskspace
+	    docmd vzlist $LIST -o ctid,ip,hostname,name,diskspace
 	#done
 	;;
     load)                            # HELPCMD: print load average for container(s) by list

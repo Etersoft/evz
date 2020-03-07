@@ -160,8 +160,7 @@ case $CMD in
 	###################################
 
 	for i in $LIST ; do
-		showcmd docker exec -ti $SETLANG "$i" "$@"
-		a= docker exec -ti $SETLANG "$i" "$@"
+		docmd docker exec -ti $SETLANG "$i" "$@"
 	done
 	;;
     enter)                            # HELPCMD: enter in a container with ID
