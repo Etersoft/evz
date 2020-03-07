@@ -90,14 +90,26 @@ case $CMD in
 	done
 	;;
     set)                         # HELPCMD: set param. Use with --option param
-	OPTIONS="$1 $2"
-	shift 2
-	LIST="$(get_list "$@")"
+	###################################
+	# the same code like in set)
+	# get all args until ids or all/ALL
+	LIST=""
+	if arg_is_all "$1" ; then
+		LIST="$(get_list "$1")"
+		shift
+	else
+		while [ -n "$1" ] ; do
+			arg_is_id "$1" || break
+			LIST="$LIST $1"
+			shift
+		done
+	fi
+	###################################
+
 	# show help if empty
 	[ -n "$LIST" ] || docmd vboxmanage modifyvm
 	for i in $LIST ; do
-	    info "Do $CMD on $i ..."
-	    docmd vboxmanage modifyvm $i $OPTIONS
+	    docmd vboxmanage modifyvm $i "$@"
 	done
 	;;
     ubc|resources|show)                         # HELPCMD: print resource using by virtual machine(s)

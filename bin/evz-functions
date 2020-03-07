@@ -41,3 +41,14 @@ get_list()
     list_all
 }
 
+arg_is_id()
+{
+    echo " $(list_ALL) " | grep -q " $1 "
+}
+
+arg_is_all()
+{
+    [ "$1" = "ALL" ] && return
+    [ "$1" = "all" ] && return
+    return 1
+}
