@@ -41,6 +41,12 @@ list_ALL()
     # | line_filter
 }
 
+list_ALL_names()
+{
+    #a= vboxmanage list vms | sed -e "s| {.*||"
+    return
+}
+
 todo()
 {
     warning "$@"

@@ -41,6 +41,11 @@ list_ALL()
     a= docker ps -a -q | line_filter
 }
 
+list_ALL_names()
+{
+    a= docker ps --all -q --format "{{.Names}}" | line_filter
+}
+
 todo()
 {
     warning "$@"

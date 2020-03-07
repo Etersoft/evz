@@ -39,6 +39,11 @@ list_ALL()
     a= qm list | grep "[0-9]\+" | sed -e "s| *\([0-9]\+\) .*|\1|" | line_filter
 }
 
+list_ALL_names()
+{
+    a= qm list | grep "[0-9]\+" | sed -e "s| *\([0-9]\+\) .*|\1|" | line_filter
+}
+
 todo()
 {
     warning "FIXME: $@"

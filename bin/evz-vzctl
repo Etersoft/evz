@@ -32,6 +32,11 @@ list_ALL()
     a= vzlist -1 -a "$@" | line_filter
 }
 
+list_ALL_names()
+{
+    a= vzlist -H -a -o name | grep -v "^-$"
+}
+
 
 evz_vzctl()
 {
