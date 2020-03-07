@@ -44,6 +44,12 @@ list_ALL_names()
     a= qm list | grep "[0-9]\+" | sed -e "s| *\([0-9]\+\) .*|\1|" | line_filter
 }
 
+like_id()
+{
+    echo "$1" | grep -q -E "^[0-9]+$"
+}
+
+
 todo()
 {
     warning "FIXME: $@"

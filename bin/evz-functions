@@ -46,6 +46,7 @@ arg_is_id()
     [ -n "$1" ] || return 1
     echo " $(list_ALL) " | grep -q " $1 " && return 0
     echo " $(list_ALL_names) " | grep -q " $1 " && return 0
+    like_id "$1" && fatal "ID $1 is missed on the host. Check # evz list -a output"
     return 1
 }
 

@@ -47,6 +47,11 @@ list_ALL_names()
     return
 }
 
+like_id()
+{
+    echo "$1" | grep -q -E "^[0-9]+$"
+}
+
 todo()
 {
     warning "FIXME: $@"

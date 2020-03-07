@@ -37,6 +37,11 @@ list_ALL_names()
     a= vzlist -H -a -o name | grep -v "^-$"
 }
 
+like_id()
+{
+    echo "$1" | grep -q -E "^[0-9]+$"
+}
+
 
 evz_vzctl()
 {

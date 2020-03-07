@@ -46,6 +46,12 @@ list_ALL_names()
     a= docker ps --all -q --format "{{.Names}}" | line_filter
 }
 
+like_id()
+{
+    # a55f 58b1 84ac
+    echo "$1" | grep -q "^[0-9a-f]{12}$"
+}
+
 todo()
 {
     warning "$@"
