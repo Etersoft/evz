@@ -55,3 +55,10 @@ arg_is_all()
     [ "$1" = "all" ] && return
     return 1
 }
+
+option_all()
+{
+    [ "$1" = "-a" ] && return
+    [ "$1" = "--all" ] && return
+    return 1
+}

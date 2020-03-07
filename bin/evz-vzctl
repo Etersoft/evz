@@ -129,7 +129,11 @@ case $CMD in
 		get_list "$@"
 		exit
 	fi
-	a= vzlist "$@"
+	if option_all "$1" ; then
+		docmd vzlist -a
+	else
+		docmd vzlist
+	fi
 	;;
     exec)                            # HELPCMD: execute command by list (all for all containers)
 	###################################

@@ -137,7 +137,7 @@ case $CMD in
 		get_list "$@"
 		exit
 	fi
-	if [ "$1" = "-a" ] || [ "$1" = "--all" ] ; then
+	if option_all "$1" ; then
 		docmd qm list
 	else
 		docmd qm list | grep running

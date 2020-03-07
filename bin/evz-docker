@@ -138,6 +138,7 @@ case $CMD in
 	fi
 	# Size too hard
 	#docmd docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}' "$@"
+	# allow -a, --all
 	docmd docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}' "$@"
 	info "See evz ports ID for print ports"
 	;;

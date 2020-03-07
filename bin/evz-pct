@@ -171,7 +171,11 @@ case $CMD in
 		get_list "$@"
 		exit
 	fi
-	docmd pct list "$@"
+	if option_all "$1" ; then
+		docmd pct list -a
+	else
+		docmd pct list
+	fi
 	#info "See evz ports ID for print ports"
 	;;
     exec)                            # HELPCMD: execute command by list (all for all containers)

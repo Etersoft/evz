@@ -170,7 +170,7 @@ case $CMD in
 		get_list "$@"
 		exit
 	fi
-	if [ "$1" = "-a" ] ;then
+	if option_all "$1" ; then
 		docmd vboxmanage list vms
 	else
 		docmd vboxmanage list runningvms
