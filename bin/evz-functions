@@ -74,3 +74,21 @@ quote_args()
     done
 }
 
+# will fill LIST with ids and QUOTEDARGS with other
+fill_args_list()
+{
+    # get all args until ids or all/ALL
+    LIST=""
+    if arg_is_all "$1" ; then
+        LIST="$(get_list "$1")"
+        shift
+    else
+        while [ -n "$1" ] ; do
+            arg_is_id "$1" || break
+            LIST="$LIST $1"
+            shift
+        done
+    fi
+
+    QUOTEDARGS="$(quote_args "$@")"
+}

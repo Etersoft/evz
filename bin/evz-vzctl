@@ -80,23 +80,9 @@ case $CMD in
 	done
 	;;
     set)                         # HELPCMD: set param. Use with --option param
-	###################################
-	# get all args until ids or all/ALL
-	LIST=""
-	if arg_is_all "$1" ; then
-		LIST="$(get_list "$1")"
-		shift
-	else
-		while [ -n "$1" ] ; do
-			arg_is_id "$1" || break
-			LIST="$LIST $1"
-			shift
-		done
-	fi
-	###################################
-
+	fill_args_list "$@"
 	for i in $LIST ; do
-	    docmd vzctl $CMD $i "$@" --save
+	    docmdeval vzctl set $i "$QUOTEDARGS" --save
 	done
 	;;
     ubc|resources|show)                         # HELPCMD: print resource using via vzubc
@@ -141,27 +127,9 @@ case $CMD in
 	fi
 	;;
     exec)                            # HELPCMD: execute command by list (all for all containers)
-	###################################
-	# the same code like in set)
-	# get all args until ids or all/ALL
-	LIST=""
-	if arg_is_all "$1" ; then
-		LIST="$(get_list "$1")"
-		shift
-	else
-		while [ -n "$1" ] ; do
-			arg_is_id "$1" || break
-			LIST="$LIST $1"
-			shift
-		done
-	fi
-	###################################
-
+	fill_args_list "$@"
 	for i in $LIST ; do
-	    #info "Executing on $i ..."
-	    #printf "%3d: %s" $i "$(vzctl exec $i "$INCMD")"
-	    #vzctl exec $i "$INCMD" | sed -e "s|^|$(printf "%3d: " $i)|g"
-	    docmd vzctl exec $i "$@"
+	    docmdeval vzctl exec $i "$QUOTEDARGS"
 	done
 	;;
     enter)                            # HELPCMD: enter in a container with ID

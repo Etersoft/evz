@@ -100,12 +100,9 @@ case $CMD in
 	done
 	;;
     set)                         # HELPCMD: set param. Use with --option param
-	OPTIONS="$1 $2"
-	shift 2
-	LIST="$(get_list "$@")"
+	fill_args_list "$@"
 	for i in $LIST ; do
-	    info "Do $CMD on $i ..."
-	    todo vzctl $CMD $i $OPTIONS --save
+	    docmd vzctl $CMD $i "$QUOTEDARGS" --save
 	done
 	;;
     ubc|resources|show)                         # HELPCMD: print resource using
@@ -150,9 +147,7 @@ case $CMD in
 	fi
 	;;
     exec)                            # HELPCMD: execute command by list (all for all containers)
-	INCMD="$1"
-	shift
-	LIST="$(get_list "$@")"
+	fill_args_list "$@"
 	for i in $LIST ; do
 	    todo showcmd docker exec -ti $SETLANG "$i" "$INCMD"
 	    #a= docker exec -ti $SETLANG "$i" "$INCMD"

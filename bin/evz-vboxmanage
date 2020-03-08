@@ -104,26 +104,11 @@ case $CMD in
 	done
 	;;
     set)                         # HELPCMD: set param. Use with --option param
-	###################################
-	# the same code like in set)
-	# get all args until ids or all/ALL
-	LIST=""
-	if arg_is_all "$1" ; then
-		LIST="$(get_list "$1")"
-		shift
-	else
-		while [ -n "$1" ] ; do
-			arg_is_id "$1" || break
-			LIST="$LIST $1"
-			shift
-		done
-	fi
-	###################################
-
+	fill_args_list "$@"
 	# show help if empty
 	[ -n "$LIST" ] || docmd vboxmanage modifyvm
 	for i in $LIST ; do
-	    docmd vboxmanage modifyvm $i "$@"
+	    docmdeval vboxmanage modifyvm $i "$QUOTEDARGS"
 	done
 	;;
     ubc|resources|show)                         # HELPCMD: print resource using by virtual machine(s)
@@ -185,9 +170,7 @@ case $CMD in
 	fi
 	;;
     exec)                            # HELPCMD: execute command by list (all for all virtual machines)
-	INCMD="$1"
-	shift
-	LIST="$(get_list "$@")"
+	fill_args_list "$@"
 	for i in $LIST ; do
 	    todo showcmd docker exec -ti $SETLANG "$i" "$INCMD"
 	    todo a= docker exec -ti $SETLANG "$i" "$INCMD"

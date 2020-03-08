@@ -102,9 +102,10 @@ case $CMD in
 	done
 	;;
     set)                         # HELPCMD: set param. Use with --option param
+	fill_args_list "$@"
 	for i in $LIST ; do
-	    info "Do $CMD on $i ..."
-	    todo vzctl $CMD $i $OPTIONS --save
+	    #info "Do $CMD on $i ..."
+	    todo docmdeval $CMD $i "$OPTARGS" --save
 	done
 	;;
     ubc|resources|show)                         # HELPCMD: print resource using
@@ -149,24 +150,9 @@ case $CMD in
 	info "See evz ports ID for print ports"
 	;;
     exec)                            # HELPCMD: execute command by list (all for all containers)
-	###################################
-	# the same code like in set)
-	# get all args until ids or all/ALL
-	LIST=""
-	if arg_is_all "$1" ; then
-		LIST="$(get_list "$1")"
-		shift
-	else
-		while [ -n "$1" ] ; do
-			arg_is_id "$1" || break
-			LIST="$LIST $1"
-			shift
-		done
-	fi
-	###################################
-
+	fill_args_list "$@"
 	for i in $LIST ; do
-		docmd docker exec -ti $SETLANG "$i" "$@"
+		docmdeval docker exec -ti $SETLANG "$i" "$QUOTEDARGS"
 	done
 	;;
     enter)                            # HELPCMD: enter in a container with ID
