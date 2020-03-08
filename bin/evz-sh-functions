@@ -90,6 +90,13 @@ docmd()
 	"$@"
 }
 
+# Print command line and run command line
+docmdeval()
+{
+	showcmd $(eval echo "$@")
+	eval "$@"
+}
+
 # Run every arg with docmd
 docmd_foreach()
 {
