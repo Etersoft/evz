@@ -63,3 +63,14 @@ option_all()
     [ "$1" = "--all" ] && return
     return 1
 }
+
+# quote with \' all args with spaces
+quote_args()
+{
+    local i
+    for i in "$@" ; do
+        [ "${i// /_}" = "$i" ] && echo -n " $i" && continue
+        echo -n " \'$i\'"
+    done
+}
+
