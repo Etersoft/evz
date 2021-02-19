@@ -1,0 +1,199 @@
+#!/bin/sh
+#
+# Copyright (C) 2020-2021  Etersoft
+# Copyright (C) 2020-2021  Vitaly Lipatov <lav@etersoft.ru>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+SETLANG="-e LC_ALL=ru_RU.UTF8"
+
+# list all running containers (or by arg list)
+list_all()
+{
+    if [ -n "$1" ] ; then
+        echo "$*"
+        return
+    fi
+
+    a= podman ps -q | line_filter
+}
+
+# list all containers (or by arg list)
+list_ALL()
+{
+    if [ -n "$1" ] ; then
+        echo "$*"
+        return
+    fi
+
+    a= podman ps -a -q | line_filter
+}
+
+list_ALL_names()
+{
+    a= podman ps --all -q --format "{{.Names}}" | line_filter
+}
+
+like_id()
+{
+    # a55f 58b1 84ac
+    echo "$1" | grep -q "^[0-9a-f]{12}$"
+}
+
+todo()
+{
+    warning "$@"
+}
+
+# TODO: add all support for all cases
+
+evz_podman()
+{
+CMD=$1
+shift
+case $CMD in
+    off)                             # HELPCMD: stop container(s) and disable start on boot
+	LIST="$(get_list "$@")"
+	for i in $LIST ; do
+	    #info "Stopping $i ..."
+	    docmd podman stop $i
+	    docmd podman update --restart no $i
+	done
+	;;
+    on)                              # HELPCMD: enable start on boot and start container(s)
+	for i in "$@" ; do
+	    #info "Starting $i ..."
+	    # TODO: check if enabled
+	    docmd podman update --restart always $i
+	    docmd podman start $i
+	done
+	;;
+    status)                          # HELPCMD: print container(s) status
+	LIST="$(get_list "$@")"
+	#info "Do $CMD for $LIST ..."
+	for i in $LIST ; do
+	    docmd podman stats --no-stream --no-trunc $i
+	done
+	;;
+    compact)                         # HELPCMD: do named operation on container(s)
+	LIST="$(get_list "$@")"
+	for i in $LIST ; do
+	    info "Do $CMD on $i ..."
+	    todo vzctl $CMD $i
+	done
+	;;
+    ports)                         # HELPCMD: show public ports
+	LIST="$(get_list "$@")"
+	for i in $LIST ; do
+	    #info "Do $CMD on $i ..."
+	    docmd podman port $i
+	done
+	;;
+    set)                         # HELPCMD: set param. Use with --option param
+	fill_args_list "$@"
+	for i in $LIST ; do
+	    #info "Do $CMD on $i ..."
+	    todo docmdeval $CMD $i "$OPTARGS" --save
+	done
+	;;
+    ubc|resources|show)                         # HELPCMD: print resource using
+	LIST="$(get_list "$@")"
+	showcmd podman stats --no-stream --no-trunc
+	for i in $LIST ; do
+	    a= podman stats --no-stream --no-trunc $i
+	done
+	;;
+    stop)                            # HELPCMD: stop container(s)
+	LIST="$(get_list "$@")"
+	for i in $LIST ; do
+	    info "Stopping $i ..."
+	    docmd podman stop $i
+	done
+	;;
+    start)                           # HELPCMD: start container(s)
+	LIST="$(get_list "$@")"
+	for i in $LIST ; do
+	    info "Starting $i ..."
+	    docmd podman start $i
+	done
+	;;
+    restart)                         # HELPCMD: restart container(s)
+	LIST="$(get_list "$@")"
+	for i in $LIST ; do
+	    info "Restarting $i ..."
+	    docmd podman restart $i
+	done
+	;;
+    list|ps)                            # HELPCMD: list available container(s) (use -q|-1 for list only ID, list -a for list ever stopped containers)
+	# if -q, just id list
+	if [ -z "$verbose" ] || [ "$1" = "-1" ] || [ "$1" = "-q" ] ; then
+		[ -z "$verbose" ] || shift
+		get_list "$@"
+		exit
+	fi
+	# Size too hard
+	#docmd podman ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Size}}' "$@"
+	# allow -a, --all
+	docmd podman ps --format 'table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}' "$@"
+	info "See evz ports ID for print ports"
+	;;
+    exec)                            # HELPCMD: execute command by list (all for all containers)
+	fill_args_list "$@"
+	for i in $LIST ; do
+		docmdeval podman exec -ti $SETLANG "$i" "$QUOTEDARGS"
+	done
+	;;
+    enter)                            # HELPCMD: enter in a container with ID
+	ID="$1"
+	shift
+	showcmd podman exec -ti $SETLANG "$ID" bash
+	a= podman exec -ti $SETLANG "$ID" bash
+	;;
+    log|logs)                         # HELPCMD: print container log
+	docmd podman logs "$1"
+	;;
+    info)                            # HELPCMD: print containers(s) info (vzlist like)
+	LIST="$(get_list "$@")"
+	for i in $LIST ; do
+	    docmd podman inspect $i
+	done
+	info "See evz ports ID for print ports"
+	;;
+    load)                            # HELPCMD: print load average for container(s) by list
+        for id in $(get_list "$@") ; do
+            HN=$(a= podman inspect --format '{{.Name}}' $id)
+            CPU=$(a= podman stats --no-stream --format " {{.CPUPerc}}" $id)
+            printf "%4s (%30s): %6s\n" $id $HN $CPU
+        done
+        ;;
+    destroy)                         # HELPCMD: destroy container(s) by list
+        echo "You request to destroy follow containers:"
+        # don't support all/ALL
+	#LIST="$(get_list "$@")"
+	LIST="$@"
+	echo "$LIST"
+        #local response
+        read -r -p "Are you sure? [Yes/No]" response
+        [ "$response" = "Yes" ] || fatal "Have no receive your accept."
+
+	info "Stopping $LIST ..."
+	docmd podman stop $LIST
+	docmd podman rm -f -v $LIST
+	;;
+    *)
+	fatal "Unknow command '$CMD'. Use --help to get help."
+	;;
+esac
+}

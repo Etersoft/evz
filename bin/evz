@@ -35,7 +35,7 @@ load_helper evz-functions
 
 check_tty
 
-SUPPORTED_ENGINES="vzctl docker qm pct vboxmanage"
+SUPPORTED_ENGINES="vzctl podman docker qm pct vboxmanage"
 
 MCTL=""
 EVZCTL_supported=""
