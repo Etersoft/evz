@@ -5,7 +5,7 @@
 .\" This file has been put into the public domain.
 .\" You can do whatever you want with this file.
 .\"
-.TH EVZ 8 "November 2017" "Version 0.1"
+.TH EVZ 8 "February 2021" "Version 0.1"
 
 .SH NAME
 evz \- openvz control tool
@@ -35,6 +35,7 @@ Quiet mode
  # evz on 25 - enable onboot and start container 25
  # evz destroy 5 10 - stop containers 5, 10 and destroy it
  # evz restart 10 20 - restart containers 10 20
+ # evz exec all epm q sudo - run 'epm -q sudo' in all running containers
 
 .SH ENV
 You can override autodetected virtualization engine with EVZCTL environment variable.

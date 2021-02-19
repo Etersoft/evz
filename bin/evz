@@ -72,13 +72,15 @@ $(get_help HELPOPT)
  Examples:
     # evz start ID ID ID
     # evz list ALL
+    # evz exec all epm q sudo
+    # evz exec all ls '/tmp/file with spaces'
 "
 }
 
 print_version()
 {
         echo "Etersoft virtualization wrapper version @VERSION@"
-        echo "Copyright (c) Etersoft 2017, 2020"
+        echo "Copyright (c) Etersoft 2017, 2020, 2021"
         echo "This program may be freely redistributed under the terms of the GNU AGPLv3."
 }
 

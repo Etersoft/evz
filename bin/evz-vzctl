@@ -89,6 +89,8 @@ case $CMD in
 	LIST="$(get_list "$@")"
 	for i in $LIST ; do
 	    #info "Do $CMD on $i ..."
+	# TODO: https://bugzilla.altlinux.org/show_bug.cgi?id=38904
+	#cat /proc/user_beancounters
 	    a= vzubc $i
 	done
 	;;
