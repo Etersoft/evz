@@ -25,8 +25,7 @@ list_all()
         return
     fi
 
-    # TODO
-    #a= pct list | grep "[0-9]\+" | sed -e "s| *\([0-9]\+\) .*|\1|" | line_filter
+    a= pct list | grep "running" | grep "[0-9]\+" | sed -e "s| *\([0-9]\+\) .*|\1|" | line_filter
 }
 
 # list all containers (or by arg list)
@@ -37,14 +36,17 @@ list_ALL()
         return
     fi
 
-    # TODO
-    #a= pct list | grep "[0-9]\+" | sed -e "s| *\([0-9]\+\) .*|\1|" | line_filter
+    a= pct list | grep "[0-9]\+" | sed -e "s| *\([0-9]\+\) .*|\1|" | line_filter
 }
 
 list_ALL_names()
 {
-    # TODO
-    return
+    a= pct list | grep "[0-9]\+" | sed -e "s| *$||" | sed -e "s|.* ||" | line_filter
+}
+
+list_id_names()
+{
+    a= pct list | grep "[0-9]\+" | sed -e "s| *$||" -e "s| *\([0-9]\+\) *\(.*\) \+\(.*\)$|\1 \3|"
 }
 
 like_id()
@@ -175,7 +177,8 @@ case $CMD in
 	done
 	;;
     enter)                            # HELPCMD: enter in a container with ID
-	docmd pct enter "$1"
+	fill_args_list "$1"
+	docmd pct enter $LIST
 	#a= docker exec -ti $SETLANG "$1" bash
 	;;
     log|logs)                         # HELPCMD: print container log

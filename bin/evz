@@ -69,6 +69,11 @@ $(get_help HELPCMD)
  Options:
 $(get_help HELPOPT)
 
+  Params:
+     ALL - all (even stopped) machines
+     all - all running machines
+      ID - id of a machine
+
  Examples:
     # evz start ID ID ID
     # evz list ALL
@@ -80,7 +85,7 @@ $(get_help HELPOPT)
 print_version()
 {
         echo "Etersoft virtualization wrapper version @VERSION@"
-        echo "Copyright (c) Etersoft 2017, 2020, 2021"
+        echo "Copyright (c) Etersoft 2017, 2020, 2021, 2022"
         echo "This program may be freely redistributed under the terms of the GNU AGPLv3."
 }
 
